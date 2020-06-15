@@ -25,12 +25,10 @@ object Kafka {
 
     val doneTopicName = "aapen-brukernotifikasjon-done-v1"
     val beskjedTopicName = "aapen-brukernotifikasjon-nyBeskjed-v1"
-    val innboksTopicName = "aapen-brukernotifikasjon-nyInnboks-v1"
     val oppgaveTopicName = "aapen-brukernotifikasjon-nyOppgave-v1"
 
     val doneBackupTopicName = "dittnav-brukernotifikasjon-done-v1-backup"
     val beskjedBackupTopicName = "dittnav-brukernotifikasjon-nyBeskjed-v1-backup"
-    val innboksBackupTopicName = "dittnav-brukernotifikasjon-nyInnboks-v1-backup"
     val oppgaveBackupTopicName = "dittnav-brukernotifikasjon-nyOppgave-v1-backup"
 
 

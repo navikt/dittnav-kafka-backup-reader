@@ -7,7 +7,6 @@ class HealthService(private val applicationContext: ApplicationContext) {
     suspend fun getHealthChecks(): List<HealthStatus> {
         return listOf(
                 applicationContext.beskjedConsumer.status(),
-                applicationContext.innboksConsumer.status(),
                 applicationContext.oppgaveConsumer.status(),
                 applicationContext.doneConsumer.status()
         )
