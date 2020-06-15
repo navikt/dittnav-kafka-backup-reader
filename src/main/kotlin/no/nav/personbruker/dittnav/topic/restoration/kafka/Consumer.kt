@@ -40,7 +40,6 @@ class Consumer<T>(
     override suspend fun status(): HealthStatus {
         val serviceName = topic + "consumer"
         return if (neverStarted) {
-            log.info("Selftest uklar, kafka consumere har ikke blitt startet enda.")
             HealthStatus(serviceName, Status.NOT_STARTED, "Consumer is not running", includeInReadiness = false)
         } else if (job.isActive) {
             HealthStatus(serviceName, Status.OK, "Consumer is running", includeInReadiness = false)
