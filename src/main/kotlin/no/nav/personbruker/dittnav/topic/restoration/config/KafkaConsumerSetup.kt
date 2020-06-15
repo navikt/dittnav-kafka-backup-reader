@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.topic.restoration.config
 
 import no.nav.brukernotifikasjon.schemas.*
-import no.nav.personbruker.dittnav.topic.restoration.common.EventBatchRelayService
+import no.nav.personbruker.dittnav.topic.restoration.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.topic.restoration.kafka.Consumer
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.slf4j.Logger
@@ -34,23 +34,23 @@ object KafkaConsumerSetup {
         log.info("...ferdig med å stoppe kafka-pollerne.")
     }
 
-    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventRelay: EventBatchRelayService<Beskjed>): Consumer<Beskjed> {
+    fun setupConsumerForTheBeskjedTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Beskjed>): Consumer<Beskjed> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(kafkaProps)
-        return Consumer(Kafka.beskjedBackupTopicName, kafkaConsumer, eventRelay)
+        return Consumer(Kafka.beskjedBackupTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventRelay: EventBatchRelayService<Oppgave>): Consumer<Oppgave> {
+    fun setupConsumerForTheOppgaveTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Oppgave>): Consumer<Oppgave> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Oppgave>(kafkaProps)
-        return Consumer(Kafka.oppgaveBackupTopicName, kafkaConsumer, eventRelay)
+        return Consumer(Kafka.oppgaveBackupTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventRelay: EventBatchRelayService<Innboks>): Consumer<Innboks> {
+    fun setupConsumerForTheInnboksTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Innboks>): Consumer<Innboks> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Innboks>(kafkaProps)
-        return Consumer(Kafka.innboksBackupTopicName, kafkaConsumer, eventRelay)
+        return Consumer(Kafka.innboksBackupTopicName, kafkaConsumer, eventProcessor)
     }
 
-    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventRelay: EventBatchRelayService<Done>): Consumer<Done> {
+    fun setupConsumerForTheDoneTopic(kafkaProps: Properties, eventProcessor: EventBatchProcessorService<Done>): Consumer<Done> {
         val kafkaConsumer = KafkaConsumer<Nokkel, Done>(kafkaProps)
-        return Consumer(Kafka.doneBackupTopicName, kafkaConsumer, eventRelay)
+        return Consumer(Kafka.doneBackupTopicName, kafkaConsumer, eventProcessor)
     }
 }

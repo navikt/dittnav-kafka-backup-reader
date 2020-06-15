@@ -4,16 +4,14 @@ import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.personbruker.dittnav.topic.restoration.common.RecordKeyValueWrapper
 import no.nav.personbruker.dittnav.topic.restoration.common.exception.RetriableKafkaException
 import no.nav.personbruker.dittnav.topic.restoration.common.exception.UnretriableKafkaException
-import no.nav.personbruker.dittnav.topic.restoration.config.Environment
-import no.nav.personbruker.dittnav.topic.restoration.config.Kafka
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.KafkaException
 import org.slf4j.LoggerFactory
 
 class KafkaProducerWrapper<T>(
-    val topicName: String,
-    val kafkaProducer: KafkaProducer<Nokkel, T>
+    private val destinationTopicName: String,
+    private val kafkaProducer: KafkaProducer<Nokkel, T>
 ) {
 
     private val log = LoggerFactory.getLogger(KafkaProducerWrapper::class.java)
@@ -35,7 +33,7 @@ class KafkaProducerWrapper<T>(
     }
 
     private fun sendEvent(event: RecordKeyValueWrapper<T>) {
-        val producerRecord = ProducerRecord(topicName, event.key, event.value)
+        val producerRecord = ProducerRecord(destinationTopicName, event.key, event.value)
         kafkaProducer.send(producerRecord)
     }
 

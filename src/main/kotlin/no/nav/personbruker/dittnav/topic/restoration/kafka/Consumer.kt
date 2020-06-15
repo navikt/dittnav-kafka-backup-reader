@@ -2,7 +2,7 @@ package no.nav.personbruker.dittnav.topic.restoration.kafka
 
 import kotlinx.coroutines.*
 import no.nav.brukernotifikasjon.schemas.Nokkel
-import no.nav.personbruker.dittnav.topic.restoration.common.EventBatchRelayService
+import no.nav.personbruker.dittnav.topic.restoration.common.EventBatchProcessorService
 import no.nav.personbruker.dittnav.topic.restoration.common.exception.RetriableKafkaException
 import no.nav.personbruker.dittnav.topic.restoration.common.exception.UnretriableKafkaException
 import no.nav.personbruker.dittnav.topic.restoration.health.HealthCheck
@@ -19,7 +19,7 @@ import kotlin.coroutines.CoroutineContext
 class Consumer<T>(
     val topic: String,
     val kafkaConsumer: KafkaConsumer<Nokkel, T>,
-    val eventBatchRelayService: EventBatchRelayService<T>,
+    val eventBatchProcessorService: EventBatchProcessorService<T>,
     val job: Job = Job(),
     var neverStarted: Boolean = true
 ) : CoroutineScope, HealthCheck {
@@ -67,7 +67,7 @@ class Consumer<T>(
         try {
             val records = kafkaConsumer.poll(Duration.of(100, ChronoUnit.MILLIS))
             if(records.containsEvents()) {
-                eventBatchRelayService.relayEvents(records)
+                eventBatchProcessorService.processEvents(records)
                 kafkaConsumer.commitSync()
             }
         } catch (re: RetriableKafkaException) {

@@ -33,6 +33,18 @@ repositories {
 application {
     mainClassName = "io.ktor.server.netty.EngineMain"
 }
+sourceSets {
+    create("intTest") {
+        compileClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+        runtimeClasspath += sourceSets.main.get().output + sourceSets.test.get().output
+    }
+}
+
+val intTestImplementation by configurations.getting {
+    extendsFrom(configurations.testImplementation.get())
+}
+
+configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
@@ -57,6 +69,8 @@ dependencies {
     testImplementation("io.confluent:kafka-schema-registry:$confluentVersion")
     testImplementation("org.amshove.kluent:kluent:$kluentVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
+
+    intTestImplementation("org.junit.jupiter:junit-jupiter-engine:$junitVersion")
 }
 
 tasks.withType<KotlinCompile> {
@@ -93,4 +107,14 @@ tasks {
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath
     }
+}
+
+
+val integrationTest = task<Test>("integrationTest") {
+    description = "Runs integration tests."
+    group = "verification"
+
+    testClassesDirs = sourceSets["intTest"].output.classesDirs
+    classpath = sourceSets["intTest"].runtimeClasspath
+    shouldRunAfter("test")
 }
