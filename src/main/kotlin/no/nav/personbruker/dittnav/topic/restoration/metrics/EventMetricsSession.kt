@@ -3,20 +3,20 @@ import no.nav.personbruker.dittnav.topic.restoration.config.EventType
 
 class EventMetricsSession(val eventType: EventType) {
     private var eventsHandled = 0
-    private var eventsRetried = 0
+    private var eventsAttempted = 0
     private val startTime = System.nanoTime()
 
-    fun incEventsRetried(amount: Int) {
-        eventsRetried += amount
+    fun incEventsAttempted(amount: Int) {
+        eventsAttempted += amount
     }
 
-    fun incEventsHandled(amount: Int) {
+    fun incEventsConfirmed(amount: Int) {
         eventsHandled += amount
     }
 
-    fun getEventsHandled() = eventsHandled
+    fun getEventsConfirmed() = eventsHandled
 
-    fun getEventsRetried() = eventsRetried
+    fun getEventsAttempted() = eventsAttempted
 
     fun timeElapsedSinceSessionStartNanos() = System.nanoTime() - startTime
 }

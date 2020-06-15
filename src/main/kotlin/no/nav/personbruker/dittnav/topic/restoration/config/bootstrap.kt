@@ -1,7 +1,6 @@
 package no.nav.personbruker.dittnav.topic.restoration.config
 
 import io.ktor.application.Application
-import io.ktor.application.ApplicationStarted
 import io.ktor.application.ApplicationStopPreparing
 import io.ktor.application.install
 import io.ktor.features.DefaultHeaders

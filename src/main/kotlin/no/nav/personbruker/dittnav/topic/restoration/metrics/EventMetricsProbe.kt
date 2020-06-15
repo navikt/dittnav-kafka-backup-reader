@@ -7,17 +7,21 @@ class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
 
     suspend fun runWithMetrics(eventType: EventType, block: suspend EventMetricsSession.() -> Unit) {
         val session = EventMetricsSession(eventType)
-        block.invoke(session)
-        val processingTime = session.timeElapsedSinceSessionStartNanos()
+        try {
+            block.invoke(session)
+        } finally {
+            val processingTime = session.timeElapsedSinceSessionStartNanos()
 
-        if (session.getEventsHandled() > 0) {
-            handleEventsBatch(session, processingTime)
+            if (session.getEventsAttempted() > 0) {
+                handleEventsBatch(session, processingTime)
+            }
         }
     }
 
     private suspend fun handleEventsBatch(session: EventMetricsSession, processingTime: Long) {
         val fieldMap = listOf(
-                "counter" to session.getEventsHandled(),
+                "events_sent_successfully" to session.getEventsConfirmed(),
+                "events_attempted" to session.getEventsAttempted(),
                 "processingTime" to processingTime
         ).toMap()
 

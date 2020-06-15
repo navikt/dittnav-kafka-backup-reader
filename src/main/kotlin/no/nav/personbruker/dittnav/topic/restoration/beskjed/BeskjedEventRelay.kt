@@ -17,9 +17,11 @@ class BeskjedEventRelay(
         eventsMetricsProbe.runWithMetrics(eventType = BESKJED) {
             val eventList = events.asWrapperList()
 
+            incEventsAttempted(eventList.size)
+
             eventProducer.sendEvents(eventList)
 
-            incEventsHandled(eventList.size)
+            incEventsConfirmed(eventList.size)
         }
     }
 }

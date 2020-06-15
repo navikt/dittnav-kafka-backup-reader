@@ -17,9 +17,11 @@ class InnboksEventRelay(
         eventsMetricsProbe.runWithMetrics(eventType = INNBOKS) {
             val eventList = events.asWrapperList()
 
+            incEventsAttempted(eventList.size)
+
             eventProducer.sendEvents(eventList)
 
-            incEventsHandled(eventList.size)
+            incEventsConfirmed(eventList.size)
         }
     }
 }

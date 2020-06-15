@@ -17,9 +17,11 @@ class OppgaveEventRelay(
         eventsMetricsProbe.runWithMetrics(eventType = OPPGAVE) {
             val eventList = events.asWrapperList()
 
+            incEventsAttempted(eventList.size)
+
             eventProducer.sendEvents(eventList)
 
-            incEventsHandled(eventList.size)
+            incEventsConfirmed(eventList.size)
         }
     }
 }

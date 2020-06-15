@@ -5,20 +5,11 @@ import java.time.Instant
 
 object AvroBeskjedObjectMother {
 
-    private val defaultLopenummer = 1
     private val defaultFodselsnr = "12345"
     private val defaultText = "Dette er Beskjed til brukeren"
 
-    fun createBeskjedWithText(text: String): Beskjed {
-        return createBeskjed(defaultLopenummer, defaultFodselsnr, text)
-    }
-
     fun createBeskjed(lopenummer: Int): Beskjed {
         return createBeskjed(lopenummer, defaultFodselsnr, defaultText)
-    }
-
-    fun createBeskjedWithFodselsnummer(fodselsnummer: String): Beskjed {
-        return createBeskjed(defaultLopenummer, fodselsnummer, defaultText)
     }
 
     fun createBeskjed(lopenummer: Int, fodselsnummer: String, text: String): Beskjed {

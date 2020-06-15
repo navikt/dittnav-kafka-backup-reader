@@ -7,14 +7,11 @@ import no.nav.personbruker.dittnav.topic.restoration.common.exception.Unretriabl
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.KafkaException
-import org.slf4j.LoggerFactory
 
 class KafkaProducerWrapper<T>(
     private val destinationTopicName: String,
     private val kafkaProducer: KafkaProducer<Nokkel, T>
 ) {
-
-    private val log = LoggerFactory.getLogger(KafkaProducerWrapper::class.java)
 
     fun sendEvents(events: List<RecordKeyValueWrapper<T>>) {
         try {
@@ -35,15 +32,5 @@ class KafkaProducerWrapper<T>(
     private fun sendEvent(event: RecordKeyValueWrapper<T>) {
         val producerRecord = ProducerRecord(destinationTopicName, event.key, event.value)
         kafkaProducer.send(producerRecord)
-    }
-
-    fun flushAndClose() {
-        try {
-            kafkaProducer.flush()
-            kafkaProducer.close()
-            log.info("Produsent for kafka-eventer er flushet og lukket.")
-        } catch (e: Exception) {
-            log.warn("Klarte ikke å flushe og lukke produsent. Det kan være eventer som ikke ble produsert.")
-        }
     }
 }

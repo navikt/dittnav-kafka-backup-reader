@@ -118,3 +118,5 @@ val integrationTest = task<Test>("integrationTest") {
     classpath = sourceSets["intTest"].runtimeClasspath
     shouldRunAfter("test")
 }
+
+tasks.check { dependsOn(integrationTest) }

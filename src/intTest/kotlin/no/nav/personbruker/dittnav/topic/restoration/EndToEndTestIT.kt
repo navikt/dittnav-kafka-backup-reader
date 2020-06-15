@@ -4,21 +4,26 @@ package no.nav.personbruker.dittnav.topic.restoration
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.Beskjed
-import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.*
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.topic.restoration.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.topic.restoration.beskjed.BeskjedEventRelay
-import no.nav.personbruker.dittnav.topic.restoration.beskjed.CapturingBeskjedEventProcessor
-import no.nav.personbruker.dittnav.topic.restoration.common.BeskjedRecord
+import no.nav.personbruker.dittnav.topic.restoration.kafka.CapturingEventProcessor
+import no.nav.personbruker.dittnav.topic.restoration.common.RecordKeyValueWrapper
 import no.nav.personbruker.dittnav.topic.restoration.config.EventType
 import no.nav.personbruker.dittnav.topic.restoration.config.Kafka
+import no.nav.personbruker.dittnav.topic.restoration.done.AvroDoneObjectMother
+import no.nav.personbruker.dittnav.topic.restoration.done.DoneEventRelay
+import no.nav.personbruker.dittnav.topic.restoration.innboks.AvroInnboksObjectMother
+import no.nav.personbruker.dittnav.topic.restoration.innboks.InnboksEventRelay
 import no.nav.personbruker.dittnav.topic.restoration.kafka.Consumer
 import no.nav.personbruker.dittnav.topic.restoration.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.topic.restoration.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.topic.restoration.kafka.util.createNokkel
 import no.nav.personbruker.dittnav.topic.restoration.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.topic.restoration.metrics.StubMetricsReporter
+import no.nav.personbruker.dittnav.topic.restoration.oppgave.AvroOppgaveObjectMother
+import no.nav.personbruker.dittnav.topic.restoration.oppgave.OppgaveEventRelay
 import org.amshove.kluent.`should equal`
 import org.amshove.kluent.shouldEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
@@ -28,9 +33,22 @@ import org.junit.jupiter.api.Test
 
 class EndToEndTestIT {
 
-    private val backupTopic = "backupBeskjedTopic"
-    private val targetTopic = "targetBeskjedTopic"
-    private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(listOf(backupTopic, targetTopic))
+    private val backupBeskjedTopic = "backupBeskjedTopic"
+    private val targetBeskjedTopic = "targetBeskjedTopic"
+    private val backupOppgaveTopic = "backupOppgaveTopic"
+    private val targetOppgaveTopic = "targetOppgaveTopic"
+    private val backupInnboksTopic = "backupInnboksTopic"
+    private val targetInnboksTopic = "targetInnboksTopic"
+    private val backupDoneTopic = "backupDoneTopic"
+    private val targetDoneTopic = "targetDoneTopic"
+
+    private val topicList = listOf(
+        backupBeskjedTopic, targetBeskjedTopic,
+        backupOppgaveTopic, targetOppgaveTopic,
+        backupInnboksTopic, targetInnboksTopic,
+        backupDoneTopic, targetDoneTopic
+    )
+    private val embeddedEnv = KafkaTestUtil.createDefaultKafkaEmbeddedInstance(topicList)
     private val testEnvironment = KafkaTestUtil.createEnvironmentForEmbeddedKafka(embeddedEnv)
 
     private val metricsReporter = StubMetricsReporter()
@@ -38,9 +56,15 @@ class EndToEndTestIT {
 
     private val adminClient = embeddedEnv.adminClient
 
-    private val events = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val beskjedEvents = (1..10).map { createNokkel(it) to AvroBeskjedObjectMother.createBeskjed(it) }.toMap()
+    private val oppgaveEvents = (1..10).map { createNokkel(it) to AvroOppgaveObjectMother.createOppgave(it) }.toMap()
+    private val innboksEvents = (1..10).map { createNokkel(it) to AvroInnboksObjectMother.createInnboks(it) }.toMap()
+    private val doneEvents = (1..10).map { createNokkel(it) to AvroDoneObjectMother.createDone(it) }.toMap()
 
-    private val capturedBeskjedRecords = ArrayList<BeskjedRecord>()
+    private val capturedBeskjedRecords = ArrayList<RecordKeyValueWrapper<Beskjed>>()
+    private val capturedOppgaveRecords = ArrayList<RecordKeyValueWrapper<Oppgave>>()
+    private val capturedInnboksRecords = ArrayList<RecordKeyValueWrapper<Innboks>>()
+    private val capturedDoneRecords = ArrayList<RecordKeyValueWrapper<Done>>()
 
     init {
         embeddedEnv.start()
@@ -58,54 +82,91 @@ class EndToEndTestIT {
     }
 
     @Test
-    fun `Skal lese inn Beskjeds-eventer og skrive de til databasen`() {
-        `Produserer noen testeventer`()
-        `Les inn alle eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
+    fun `Skal lese inn Beskjed-eventer og sende dem til vanlig topic`() {
+        runBlocking {
+            KafkaTestUtil.produceEvents(testEnvironment, backupBeskjedTopic, beskjedEvents)
+        } shouldEqualTo true
 
-        events.all {
-            capturedBeskjedRecords.contains(BeskjedRecord(it.key, it.value))
+        `Les inn alle beskjed eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
+
+        beskjedEvents.all {
+            capturedBeskjedRecords.contains(RecordKeyValueWrapper(it.key, it.value))
         }
     }
 
-    fun `Produserer noen testeventer`() {
+    @Test
+    fun `Skal lese inn Oppgave-eventer og sende dem til vanlig topic`() {
         runBlocking {
-            KafkaTestUtil.produceEvents(testEnvironment, backupTopic, events)
+            KafkaTestUtil.produceEvents(testEnvironment, backupOppgaveTopic, oppgaveEvents)
         } shouldEqualTo true
+
+        `Les inn alle oppgave eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
+
+        oppgaveEvents.all {
+            capturedOppgaveRecords.contains(RecordKeyValueWrapper(it.key, it.value))
+        }
     }
 
-    fun `Les inn alle eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`() {
+    @Test
+    fun `Skal lese inn Innboks-eventer og sende dem til vanlig topic`() {
+        runBlocking {
+            KafkaTestUtil.produceEvents(testEnvironment, backupInnboksTopic, innboksEvents)
+        } shouldEqualTo true
+
+        `Les inn alle innboks eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
+
+        innboksEvents.all {
+            capturedInnboksRecords.contains(RecordKeyValueWrapper(it.key, it.value))
+        }
+    }
+
+    @Test
+    fun `Skal lese inn Done-eventer og sende dem til vanlig topic`() {
+        runBlocking {
+            KafkaTestUtil.produceEvents(testEnvironment, backupDoneTopic, doneEvents)
+        } shouldEqualTo true
+
+        `Les inn alle done eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
+
+        doneEvents.all {
+            capturedDoneRecords.contains(RecordKeyValueWrapper(it.key, it.value))
+        }
+    }
+
+
+    fun `Les inn alle beskjed eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`() {
         val consumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
         val kafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(consumerProps)
 
         val producerProps = Kafka.producerProps(testEnvironment, EventType.BESKJED, true)
         val kafkaProducer = KafkaProducer<Nokkel, Beskjed>(producerProps)
-        val producerWrapper = KafkaProducerWrapper(targetTopic, kafkaProducer)
+        val producerWrapper = KafkaProducerWrapper(targetBeskjedTopic, kafkaProducer)
 
         val eventRelay = BeskjedEventRelay(producerWrapper, metricsProbe)
-        val consumer = Consumer(backupTopic, kafkaConsumer, eventRelay)
+        val consumer = Consumer(backupBeskjedTopic, kafkaConsumer, eventRelay)
 
         kafkaProducer.initTransactions()
         runBlocking {
             consumer.startPolling()
 
-            `Wait until all events have been received by target topic`()
+            `Wait until all beskjed events have been received by target topic`()
 
             consumer.stopPolling()
         }
     }
 
-    private fun `Wait until all events have been received by target topic`() {
+    private fun `Wait until all beskjed events have been received by target topic`() {
         val targetConsumerProps = Kafka.consumerProps(testEnvironment, EventType.BESKJED, true)
         val targetKafkaConsumer = KafkaConsumer<Nokkel, Beskjed>(targetConsumerProps)
-        val capturingProcessor = CapturingBeskjedEventProcessor()
+        val capturingProcessor = CapturingEventProcessor<Beskjed>()
 
-        val targetConsumer = Consumer(targetTopic, targetKafkaConsumer, capturingProcessor)
+        val targetConsumer = Consumer(targetBeskjedTopic, targetKafkaConsumer, capturingProcessor)
 
         var currentNumberOfRecords = 0
 
         targetConsumer.startPolling()
 
-        while (currentNumberOfRecords < events.size) {
+        while (currentNumberOfRecords < beskjedEvents.size) {
             runBlocking {
                 currentNumberOfRecords = capturingProcessor.getEvents().size
                 delay(100)
@@ -117,6 +178,144 @@ class EndToEndTestIT {
         }
 
         capturedBeskjedRecords.addAll(capturingProcessor.getEvents())
+    }
+
+    fun `Les inn alle oppgave eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`() {
+        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.OPPGAVE, true)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Oppgave>(consumerProps)
+
+        val producerProps = Kafka.producerProps(testEnvironment, EventType.OPPGAVE, true)
+        val kafkaProducer = KafkaProducer<Nokkel, Oppgave>(producerProps)
+        val producerWrapper = KafkaProducerWrapper(targetOppgaveTopic, kafkaProducer)
+
+        val eventRelay = OppgaveEventRelay(producerWrapper, metricsProbe)
+        val consumer = Consumer(backupOppgaveTopic, kafkaConsumer, eventRelay)
+
+        kafkaProducer.initTransactions()
+        runBlocking {
+            consumer.startPolling()
+
+            `Wait until all oppgave events have been received by target topic`()
+
+            consumer.stopPolling()
+        }
+    }
+
+    private fun `Wait until all oppgave events have been received by target topic`() {
+        val targetConsumerProps = Kafka.consumerProps(testEnvironment, EventType.OPPGAVE, true)
+        val targetKafkaConsumer = KafkaConsumer<Nokkel, Oppgave>(targetConsumerProps)
+        val capturingProcessor = CapturingEventProcessor<Oppgave>()
+
+        val targetConsumer = Consumer(targetOppgaveTopic, targetKafkaConsumer, capturingProcessor)
+
+        var currentNumberOfRecords = 0
+
+        targetConsumer.startPolling()
+
+        while (currentNumberOfRecords < oppgaveEvents.size) {
+            runBlocking {
+                currentNumberOfRecords = capturingProcessor.getEvents().size
+                delay(100)
+            }
+        }
+
+        runBlocking {
+            targetConsumer.stopPolling()
+        }
+
+        capturedOppgaveRecords.addAll(capturingProcessor.getEvents())
+    }
+
+    fun `Les inn alle innboks eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`() {
+        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.INNBOKS, true)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Innboks>(consumerProps)
+
+        val producerProps = Kafka.producerProps(testEnvironment, EventType.INNBOKS, true)
+        val kafkaProducer = KafkaProducer<Nokkel, Innboks>(producerProps)
+        val producerWrapper = KafkaProducerWrapper(targetInnboksTopic, kafkaProducer)
+
+        val eventRelay = InnboksEventRelay(producerWrapper, metricsProbe)
+        val consumer = Consumer(backupInnboksTopic, kafkaConsumer, eventRelay)
+
+        kafkaProducer.initTransactions()
+        runBlocking {
+            consumer.startPolling()
+
+            `Wait until all innboks events have been received by target topic`()
+
+            consumer.stopPolling()
+        }
+    }
+
+    private fun `Wait until all innboks events have been received by target topic`() {
+        val targetConsumerProps = Kafka.consumerProps(testEnvironment, EventType.INNBOKS, true)
+        val targetKafkaConsumer = KafkaConsumer<Nokkel, Innboks>(targetConsumerProps)
+        val capturingProcessor = CapturingEventProcessor<Innboks>()
+
+        val targetConsumer = Consumer(targetInnboksTopic, targetKafkaConsumer, capturingProcessor)
+
+        var currentNumberOfRecords = 0
+
+        targetConsumer.startPolling()
+
+        while (currentNumberOfRecords < innboksEvents.size) {
+            runBlocking {
+                currentNumberOfRecords = capturingProcessor.getEvents().size
+                delay(100)
+            }
+        }
+
+        runBlocking {
+            targetConsumer.stopPolling()
+        }
+
+        capturedInnboksRecords.addAll(capturingProcessor.getEvents())
+    }
+
+    fun `Les inn alle done eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`() {
+        val consumerProps = Kafka.consumerProps(testEnvironment, EventType.DONE, true)
+        val kafkaConsumer = KafkaConsumer<Nokkel, Done>(consumerProps)
+
+        val producerProps = Kafka.producerProps(testEnvironment, EventType.DONE, true)
+        val kafkaProducer = KafkaProducer<Nokkel, Done>(producerProps)
+        val producerWrapper = KafkaProducerWrapper(targetDoneTopic, kafkaProducer)
+
+        val eventRelay = DoneEventRelay(producerWrapper, metricsProbe)
+        val consumer = Consumer(backupDoneTopic, kafkaConsumer, eventRelay)
+
+        kafkaProducer.initTransactions()
+        runBlocking {
+            consumer.startPolling()
+
+            `Wait until all done events have been received by target topic`()
+
+            consumer.stopPolling()
+        }
+    }
+
+    private fun `Wait until all done events have been received by target topic`() {
+        val targetConsumerProps = Kafka.consumerProps(testEnvironment, EventType.DONE, true)
+        val targetKafkaConsumer = KafkaConsumer<Nokkel, Done>(targetConsumerProps)
+        val capturingProcessor = CapturingEventProcessor<Done>()
+
+        val targetConsumer = Consumer(targetDoneTopic, targetKafkaConsumer, capturingProcessor)
+
+        var currentNumberOfRecords = 0
+
+        targetConsumer.startPolling()
+
+        while (currentNumberOfRecords < doneEvents.size) {
+            runBlocking {
+                currentNumberOfRecords = capturingProcessor.getEvents().size
+                delay(100)
+            }
+        }
+
+        runBlocking {
+            targetConsumer.stopPolling()
+        }
+
+        capturedDoneRecords.addAll(capturingProcessor.getEvents())
     }
 
 }

@@ -3,7 +3,6 @@ package no.nav.personbruker.dittnav.topic.restoration.metrics.influx
 import no.nav.personbruker.dittnav.topic.restoration.config.Environment
 import no.nav.personbruker.dittnav.topic.restoration.metrics.MetricsReporter
 import org.influxdb.dto.Point
-import org.slf4j.LoggerFactory
 import java.util.concurrent.TimeUnit
 
 class InfluxMetricsReporter(val sensuClient: SensuClient, environment: Environment) : MetricsReporter {
