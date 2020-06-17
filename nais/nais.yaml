@@ -1,0 +1,38 @@
+apiVersion: "nais.io/v1alpha1"
+kind: "Application"
+metadata:
+  name: dittnav-kafka-backup-reader
+  namespace: {{namespace}}
+  labels:
+    team: personbruker
+spec:
+  image: {{version}}
+  port: 8080
+  liveness:
+    path: /internal/isAlive
+    initialDelay: 5
+  readiness:
+    path: /internal/isReady
+    initialDelay: 5
+  prometheus:
+    path: /metrics
+  replicas:
+    min: 1
+    max: 1
+    cpuThresholdPercentage: 50
+  ingresses:
+  {{#each ingresses}}
+    - "{{this}}"
+  {{/each}}
+  vault:
+    enabled: true
+    paths:
+      - kvPath: /serviceuser/data/{{environment}}/srvdittnav-backup
+        mountPath: /secret/serviceuser
+  resources:
+    limits:
+      cpu: "3"
+      memory: 1200Mi
+    requests:
+      cpu: "500m"
+      memory: 1Gi
