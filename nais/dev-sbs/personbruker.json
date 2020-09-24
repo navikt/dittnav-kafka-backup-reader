@@ -2,8 +2,6 @@
   "cluster": "preprod",
   "environment": "dev",
   "ingresses": [
-    "https://dittnav-kafka-backup-reader.dev.nav.no",
-    "https://dittnav-kafka-backup-reader-q1.dev-sbs.nais.io",
-    "https://dittnav-kafka-backup-reader-q1.nais.oera-q.local"
+    "https://dittnav-kafka-backup-reader.dev.nav.no"
   ]
 }
