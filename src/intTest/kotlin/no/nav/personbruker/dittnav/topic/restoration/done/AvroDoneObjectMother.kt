@@ -6,13 +6,12 @@ import java.time.Instant
 object AvroDoneObjectMother {
 
     private val defaultFodselsnr = "12345"
-    private val defaultText = "Dette er Done til brukeren"
 
     fun createDone(lopenummer: Int): Done {
-        return createDone(lopenummer, defaultFodselsnr, defaultText)
+        return createDone(lopenummer, defaultFodselsnr)
     }
 
-    fun createDone(lopenummer: Int, fodselsnummer: String, text: String): Done {
+    fun createDone(lopenummer: Int, fodselsnummer: String): Done {
         return Done(
                 Instant.now().toEpochMilli(),
                 fodselsnummer,
