@@ -1,11 +1,13 @@
 package no.nav.personbruker.dittnav.topic.restoration.beskjed
 
 import no.nav.brukernotifikasjon.schemas.Beskjed
-import java.time.Instant
+import no.nav.brukernotifikasjon.schemas.builders.BeskjedBuilder
+import java.net.URL
+import java.time.LocalDateTime
 
 object AvroBeskjedObjectMother {
 
-    private val defaultFodselsnr = "12345"
+    private val defaultFodselsnr = "12345678901"
     private val defaultText = "Dette er Beskjed til brukeren"
 
     fun createBeskjed(lopenummer: Int): Beskjed {
@@ -13,13 +15,13 @@ object AvroBeskjedObjectMother {
     }
 
     fun createBeskjed(lopenummer: Int, fodselsnummer: String, text: String): Beskjed {
-        return Beskjed(
-                Instant.now().toEpochMilli(),
-                Instant.now().toEpochMilli(),
-                fodselsnummer,
-                "100$lopenummer",
-                text,
-                "https://nav.no/systemX/$lopenummer",
-                4)
+        return BeskjedBuilder()
+                .withTidspunkt(LocalDateTime.now())
+                .withFodselsnummer(fodselsnummer)
+                .withGrupperingsId("100$lopenummer")
+                .withTekst(text)
+                .withLink(URL("https://nav.no/systemX/$lopenummer"))
+                .withSikkerhetsnivaa(4)
+                .build()
     }
 }

@@ -4,16 +4,19 @@ package no.nav.personbruker.dittnav.topic.restoration
 
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.runBlocking
-import no.nav.brukernotifikasjon.schemas.*
+import no.nav.brukernotifikasjon.schemas.Beskjed
+import no.nav.brukernotifikasjon.schemas.Done
+import no.nav.brukernotifikasjon.schemas.Nokkel
+import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.common.KafkaEnvironment
 import no.nav.personbruker.dittnav.topic.restoration.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.topic.restoration.beskjed.BeskjedEventRelay
-import no.nav.personbruker.dittnav.topic.restoration.kafka.CapturingEventProcessor
 import no.nav.personbruker.dittnav.topic.restoration.common.RecordKeyValueWrapper
 import no.nav.personbruker.dittnav.topic.restoration.config.EventType
 import no.nav.personbruker.dittnav.topic.restoration.config.Kafka
 import no.nav.personbruker.dittnav.topic.restoration.done.AvroDoneObjectMother
 import no.nav.personbruker.dittnav.topic.restoration.done.DoneEventRelay
+import no.nav.personbruker.dittnav.topic.restoration.kafka.CapturingEventProcessor
 import no.nav.personbruker.dittnav.topic.restoration.kafka.Consumer
 import no.nav.personbruker.dittnav.topic.restoration.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.topic.restoration.kafka.util.KafkaTestUtil
@@ -22,8 +25,8 @@ import no.nav.personbruker.dittnav.topic.restoration.metrics.EventMetricsProbe
 import no.nav.personbruker.dittnav.topic.restoration.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.topic.restoration.oppgave.AvroOppgaveObjectMother
 import no.nav.personbruker.dittnav.topic.restoration.oppgave.OppgaveEventRelay
-import org.amshove.kluent.`should equal`
-import org.amshove.kluent.shouldEqualTo
+import org.amshove.kluent.`should be equal to`
+import org.amshove.kluent.shouldBeEqualTo
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.junit.jupiter.api.AfterAll
@@ -71,14 +74,14 @@ class EndToEndTestIT {
 
     @Test
     fun `Kafka instansen i minnet har blitt staret`() {
-        embeddedEnv.serverPark.status `should equal` KafkaEnvironment.ServerParkStatus.Started
+        embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
     }
 
     @Test
     fun `Skal lese inn Beskjed-eventer og sende dem til vanlig topic`() {
         runBlocking {
             KafkaTestUtil.produceEvents(testEnvironment, backupBeskjedTopic, beskjedEvents)
-        } shouldEqualTo true
+        } shouldBeEqualTo true
 
         `Les inn alle beskjed eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
 
@@ -91,7 +94,7 @@ class EndToEndTestIT {
     fun `Skal lese inn Oppgave-eventer og sende dem til vanlig topic`() {
         runBlocking {
             KafkaTestUtil.produceEvents(testEnvironment, backupOppgaveTopic, oppgaveEvents)
-        } shouldEqualTo true
+        } shouldBeEqualTo true
 
         `Les inn alle oppgave eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
 
@@ -104,7 +107,7 @@ class EndToEndTestIT {
     fun `Skal lese inn Done-eventer og sende dem til vanlig topic`() {
         runBlocking {
             KafkaTestUtil.produceEvents(testEnvironment, backupDoneTopic, doneEvents)
-        } shouldEqualTo true
+        } shouldBeEqualTo true
 
         `Les inn alle done eventene fra backup og verifiser at de har blitt lagt til i vanlig topic`()
 

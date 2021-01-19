@@ -53,6 +53,7 @@ dependencies {
     testImplementation(Kafka.Apache.streams)
     testImplementation(Kafka.Confluent.schemaRegistry)
     testImplementation(Kluent.kluent)
+    testImplementation(Kotlinx.atomicfu)
     testImplementation(Mockk.mockk)
     testImplementation(NAV.kafkaEmbedded)
 
