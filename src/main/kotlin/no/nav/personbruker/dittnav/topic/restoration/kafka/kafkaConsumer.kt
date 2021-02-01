@@ -3,8 +3,9 @@ import no.nav.brukernotifikasjon.schemas.Nokkel
 import org.apache.kafka.clients.consumer.KafkaConsumer
 
 fun <T> KafkaConsumer<Nokkel, T>.rollbackToLastCommitted() {
-    assignment().forEach { partition ->
-        val lastCommitted = committed(partition)
+    val assignedPartitions = assignment()
+    val partitionCommittedInfo = committed(assignedPartitions)
+    partitionCommittedInfo.forEach { (partition, lastCommitted) ->
         seek(partition, lastCommitted.offset())
     }
 }
