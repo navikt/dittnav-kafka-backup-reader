@@ -9,6 +9,7 @@ import no.nav.brukernotifikasjon.schemas.Done
 import no.nav.brukernotifikasjon.schemas.Nokkel
 import no.nav.brukernotifikasjon.schemas.Oppgave
 import no.nav.common.KafkaEnvironment
+import no.nav.personbruker.dittnav.common.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.topic.restoration.beskjed.AvroBeskjedObjectMother
 import no.nav.personbruker.dittnav.topic.restoration.beskjed.BeskjedEventRelay
 import no.nav.personbruker.dittnav.topic.restoration.common.RecordKeyValueWrapper
@@ -22,7 +23,6 @@ import no.nav.personbruker.dittnav.topic.restoration.kafka.KafkaProducerWrapper
 import no.nav.personbruker.dittnav.topic.restoration.kafka.util.KafkaTestUtil
 import no.nav.personbruker.dittnav.topic.restoration.kafka.util.createNokkel
 import no.nav.personbruker.dittnav.topic.restoration.metrics.EventMetricsProbe
-import no.nav.personbruker.dittnav.topic.restoration.metrics.StubMetricsReporter
 import no.nav.personbruker.dittnav.topic.restoration.oppgave.AvroOppgaveObjectMother
 import no.nav.personbruker.dittnav.topic.restoration.oppgave.OppgaveEventRelay
 import org.amshove.kluent.`should be equal to`

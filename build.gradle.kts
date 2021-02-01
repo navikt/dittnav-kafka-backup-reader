@@ -35,6 +35,8 @@ configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(Brukernotifikasjon.schemas)
+    implementation(DittNAV.Common.influx)
+    implementation(DittNAV.Common.utils)
     implementation(Influxdb.java)
     implementation(Kafka.Apache.clients)
     implementation(Kafka.Confluent.avroSerializer)
@@ -82,7 +84,7 @@ tasks {
         environment("SERVICEUSER_PASSWORD", "password")
         environment("GROUP_ID", "dittnav_events_backup_reader")
         environment("SENSU_HOST", "stub")
-        environment("SENSU_PORT", "")
+        environment("SENSU_PORT", "0")
 
         main = application.mainClassName
         classpath = sourceSets["main"].runtimeClasspath

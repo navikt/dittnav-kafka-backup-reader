@@ -1,4 +1,4 @@
-package no.nav.personbruker.dittnav.topic.restoration.metrics.influx
+package no.nav.personbruker.dittnav.topic.restoration.metrics
 
 private const val METRIC_NAMESPACE = "dittnav.kafka.topic.backup.v1"
 

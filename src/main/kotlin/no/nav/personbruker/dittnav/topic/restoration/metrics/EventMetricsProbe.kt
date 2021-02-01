@@ -1,7 +1,7 @@
 package no.nav.personbruker.dittnav.topic.restoration.metrics
 
+import no.nav.personbruker.dittnav.common.metrics.MetricsReporter
 import no.nav.personbruker.dittnav.topic.restoration.config.EventType
-import no.nav.personbruker.dittnav.topic.restoration.metrics.influx.EVENTS_RELAYED
 
 class EventMetricsProbe(private val metricsReporter: MetricsReporter) {
 
