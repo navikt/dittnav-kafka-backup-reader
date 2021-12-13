@@ -1,8 +1,0 @@
-{
-  "cluster": "prod",
-  "environment": "prod",
-  "ingresses": [
-    "https://dittnav-kafka-backup-reader.nais.oera.no",
-    "https://dittnav-kafka-backup-reader.prod-sbs.nais.io"
-  ]
-}
