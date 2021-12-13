@@ -10,6 +10,4 @@ interface EventBatchProcessorService<T> {
     fun ConsumerRecords<Nokkel, T>.asWrapperList() : List<RecordKeyValueWrapper<T>> = map { record ->
         RecordKeyValueWrapper(record.key(), record.value())
     }
-
-
 }
