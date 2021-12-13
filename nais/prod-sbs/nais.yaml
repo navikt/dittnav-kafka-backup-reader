@@ -21,7 +21,7 @@ spec:
     max: 1
     cpuThresholdPercentage: 50
   ingresses:
-    - "https://dittnav-kafka-backup-reader.nais.oera.no",
+    - "https://dittnav-kafka-backup-reader.nais.oera.no"
     - "https://dittnav-kafka-backup-reader.prod-sbs.nais.io"
   vault:
     enabled: true
