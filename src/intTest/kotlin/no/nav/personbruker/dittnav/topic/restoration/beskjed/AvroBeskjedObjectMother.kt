@@ -24,4 +24,5 @@ object AvroBeskjedObjectMother {
                 .withSikkerhetsnivaa(4)
                 .build()
     }
+
 }
