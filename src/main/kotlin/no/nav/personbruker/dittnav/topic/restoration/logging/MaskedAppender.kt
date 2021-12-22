@@ -14,4 +14,5 @@ class MaskingAppender : AppenderBase<ILoggingEvent>() {
     fun setAppender(appender: Appender<ILoggingEvent>?) {
         this.appender = appender
     }
+
 }
