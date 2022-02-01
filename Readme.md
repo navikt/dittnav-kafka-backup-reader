@@ -1,4 +1,4 @@
-# DittNAV event aggregator
+# DittNAV Kafka backup reader
 
 Denne appen leser inn brukernotifikasjoner fra backup-topics og inn igjen på vanlige topics.
 

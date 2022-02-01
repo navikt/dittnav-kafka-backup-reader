@@ -50,7 +50,7 @@ dependencies {
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
-    
+
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
     testImplementation(Kluent.kluent)
