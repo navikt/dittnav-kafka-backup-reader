@@ -73,7 +73,7 @@ class EndToEndTestIT {
     }
 
     @Test
-    fun `Kafka instansen i minnet har blitt staret`() {
+    fun `Kafka instansen i minnet har blitt startet`() {
         embeddedEnv.serverPark.status `should be equal to` KafkaEnvironment.ServerParkStatus.Started
     }
 
