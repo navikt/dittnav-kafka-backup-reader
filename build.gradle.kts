@@ -16,7 +16,6 @@ tasks.withType<KotlinCompile> {
 repositories {
     mavenCentral()
     maven("https://packages.confluent.io/maven")
-    jcenter()
     maven("https://jitpack.io")
 }
 
@@ -37,7 +36,6 @@ val intTestImplementation by configurations.getting {
 configurations["intTestRuntimeOnly"].extendsFrom(configurations.testRuntimeOnly.get())
 
 dependencies {
-    implementation(kotlin("stdlib-jdk8"))
     implementation(Brukernotifikasjon.schemas)
     implementation(DittNAV.Common.influx)
     implementation(DittNAV.Common.utils)
@@ -52,12 +50,9 @@ dependencies {
     implementation(Prometheus.common)
     implementation(Prometheus.hotspot)
     implementation(Prometheus.logback)
-    testImplementation(kotlin("test-junit5"))
+
     testImplementation(Junit.api)
     testImplementation(Junit.engine)
-    testImplementation(Kafka.Apache.kafka_2_12)
-    testImplementation(Kafka.Apache.streams)
-    testImplementation(Kafka.Confluent.schemaRegistry)
     testImplementation(Kluent.kluent)
     testImplementation(Kotlinx.atomicfu)
     testImplementation(Mockk.mockk)
